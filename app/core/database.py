@@ -6,6 +6,8 @@ from app.core.config import settings
 from app.models.employee import Employee
 from app.models.attendance import AttendanceLog
 from app.models.chat import Chat
+from app.models.organization import OrganizationLocation
+from app.models.permission import PermissionRequest
 from app.core.security import get_password_hash
 from datetime import date
 
@@ -18,7 +20,9 @@ async def init_db():
         document_models=[
             Employee,
             AttendanceLog,
-            Chat
+            Chat,
+            OrganizationLocation,
+            PermissionRequest
         ]
     )
     logger.info("MongoDB initialized successfully with Beanie.")
@@ -39,3 +43,16 @@ async def init_db():
         )
         await admin.insert()
         logger.info("Default admin user created: admin@example.com / admin123")
+        
+    # Seed default organization location if none exist
+    location_exists = await OrganizationLocation.find_one({})
+    if not location_exists:
+        logger.info("No organization location found. Seeding default (Tashkent Center)...")
+        # Default: Tashkent center coordinates for demo purposes
+        location = OrganizationLocation(
+            latitude=41.2995,
+            longitude=69.2401,
+            radius_meters=100
+        )
+        await location.insert()
+        logger.info("Default organization location set to (41.2995, 69.2401) with radius 100m")

@@ -8,18 +8,48 @@ router = APIRouter()
 
 @router.post("/check-in", response_model=BiometricVerifyResponse)
 async def check_in(request: Request, data: BiometricVerifyRequest):
+    auth_header = request.headers.get("Authorization")
+    fallback_employee_id = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        try:
+            from app.core.security import verify_token
+            payload = verify_token(token)
+            if payload and payload.sub:
+                fallback_employee_id = payload.sub
+        except:
+            pass
+
     return await AttendanceService.verify_and_log(
         image_base64=data.image_base64,
         event_type="check_in",
-        ip_address=request.client.host
+        ip_address=request.client.host,
+        latitude=data.latitude,
+        longitude=data.longitude,
+        fallback_employee_id=fallback_employee_id
     )
 
 @router.post("/check-out", response_model=BiometricVerifyResponse)
 async def check_out(request: Request, data: BiometricVerifyRequest):
+    auth_header = request.headers.get("Authorization")
+    fallback_employee_id = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        try:
+            from app.core.security import verify_token
+            payload = verify_token(token)
+            if payload and payload.sub:
+                fallback_employee_id = payload.sub
+        except:
+            pass
+
     return await AttendanceService.verify_and_log(
         image_base64=data.image_base64,
         event_type="check_out",
-        ip_address=request.client.host
+        ip_address=request.client.host,
+        latitude=data.latitude,
+        longitude=data.longitude,
+        fallback_employee_id=fallback_employee_id
     )
 
 @router.get("/my-stats")

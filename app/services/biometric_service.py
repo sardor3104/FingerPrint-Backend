@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 import base64
-from typing import List, Tuple, Optional
-from loguru import logger
+from typing import List, Tuple
 from app.core.config import settings
 
 class BiometricService:

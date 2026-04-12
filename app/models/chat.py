@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Optional
+from typing import List, Literal
 from beanie import Document, Link, PydanticObjectId
 from pydantic import Field
 from .employee import Employee

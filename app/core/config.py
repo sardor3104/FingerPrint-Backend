@@ -1,6 +1,6 @@
 from typing import List, Optional, Any
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import EmailStr, AnyHttpUrl, validator
+from pydantic import EmailStr, validator
 import json
 
 class Settings(BaseSettings):

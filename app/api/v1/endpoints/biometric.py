@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request
 from app.schemas.biometric import BiometricVerifyRequest, BiometricVerifyResponse
 from app.services.attendance_service import AttendanceService
-from app.core.deps import RoleChecker
 
 router = APIRouter()
 
@@ -14,5 +13,7 @@ async def verify_biometric(request: Request, data: BiometricVerifyRequest):
     return await AttendanceService.verify_and_log(
         image_base64=data.image_base64,
         event_type="verification_only",
-        ip_address=request.client.host
+        ip_address=request.client.host,
+        latitude=data.latitude,
+        longitude=data.longitude
     )

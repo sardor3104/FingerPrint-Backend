@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from app.schemas.auth import LoginRequest, Token, LoginResponse, ForgotPasswordRequest, ResetPasswordRequest
+from fastapi import APIRouter, Depends, HTTPException
+from app.schemas.auth import LoginRequest, LoginResponse, ForgotPasswordRequest, ResetPasswordRequest
 from app.schemas.employee import EmployeeCreate, EmployeeOut
 from app.services.auth_service import AuthService
 from app.services.email_service import send_reset_password_email
-from app.core.deps import RoleChecker, get_current_user
+from app.core.deps import RoleChecker
 from app.core.security import create_access_token, verify_token, get_password_hash
 from app.models.employee import Employee
 

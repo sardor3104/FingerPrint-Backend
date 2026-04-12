@@ -2,9 +2,12 @@ from datetime import datetime, timedelta
 from typing import List, Dict
 from app.models.employee import Employee
 from app.models.attendance import AttendanceLog
-from app.schemas.employee import EmployeeOut, EmployeeUpdate
-from beanie import PydanticObjectId
+from app.models.organization import OrganizationLocation
+from app.schemas.employee import EmployeeUpdate
+from app.schemas.organization import OrganizationLocationUpdate
 from fastapi import HTTPException
+
+from app.core.security import get_password_hash
 
 class AdminService:
     @staticmethod
@@ -18,6 +21,9 @@ class AdminService:
             raise HTTPException(status_code=404, detail="Employee not found")
         
         update_data = data.model_dump(exclude_unset=True)
+        if "password" in update_data:
+            employee.password_hash = get_password_hash(update_data.pop("password"))
+            
         for key, value in update_data.items():
             setattr(employee, key, value)
         
@@ -66,3 +72,23 @@ class AdminService:
                     summary[eid]["check_outs"] += 1
         
         return [{"employee_id": k, **v} for k, v in summary.items()]
+
+    @staticmethod
+    async def get_organization_location() -> OrganizationLocation:
+        loc = await OrganizationLocation.find_one({})
+        if not loc:
+            raise HTTPException(status_code=404, detail="Organization location not set")
+        return loc
+
+    @staticmethod
+    async def update_organization_location(data: OrganizationLocationUpdate) -> OrganizationLocation:
+        loc = await OrganizationLocation.find_one({})
+        if not loc:
+            loc = OrganizationLocation(**data.model_dump())
+            await loc.insert()
+        else:
+            update_data = data.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
+                setattr(loc, key, value)
+            await loc.save()
+        return loc

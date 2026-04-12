@@ -1,5 +1,5 @@
 from typing import Literal, Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 from datetime import datetime
 
 class AttendanceLogBase(BaseModel):
@@ -15,5 +15,12 @@ class AttendanceLogOut(AttendanceLogBase):
     id: str
     employee_id: str
     timestamp: datetime
+
+    @field_validator("id", "employee_id", mode="before")
+    @classmethod
+    def parse_id(cls, v):
+        if hasattr(v, "id"):  # For Link[] objects
+            return str(v.id)
+        return str(v) if v else v
 
     model_config = ConfigDict(from_attributes=True)

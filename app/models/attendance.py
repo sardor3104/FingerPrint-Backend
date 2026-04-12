@@ -9,6 +9,8 @@ class AttendanceLog(Document):
     event_type: Literal["check_in", "check_out", "failed_attempt"]
     device_id: Optional[str] = None
     ip_address: Optional[str] = None
+    attempt_latitude: Optional[float] = None
+    attempt_longitude: Optional[float] = None
     success: bool
 
     class Settings:

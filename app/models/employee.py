@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import List, Literal, Optional
+from typing import List, Literal
 from beanie import Document, Indexed
 from pydantic import EmailStr, Field
 
@@ -10,7 +10,7 @@ class Employee(Document):
     phone: str
     email: Indexed(EmailStr, unique=True)
     password_hash: str
-    fingerprint_minutiae: List[dict]  # [{"x": int, "y": int, "angle": float, "type": str}]
+    fingerprint_minutiae: List[dict] = Field(default_factory=list)  # ← default bo'sh ro'yxat
     role: Literal["employee", "manager", "admin"] = "employee"
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

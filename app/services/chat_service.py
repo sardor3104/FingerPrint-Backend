@@ -1,4 +1,4 @@
-from typing import List, Optional, Literal
+from typing import Literal
 from beanie import PydanticObjectId
 from fastapi import HTTPException
 from app.models.chat import Chat
@@ -64,6 +64,19 @@ class ChatService:
         chat.messages.append(message)
         chat.updated_at = datetime.utcnow()
         await chat.save()
+
+        # Broadcast via websocket to connected clients (for REST fallback)
+        from app.services.websocket_manager import manager
+        broadcast_payload = {
+            "type": "message",
+            "sender_id": str(sender_id),
+            "sender_name": sender_name,
+            "text": text,
+            "timestamp": message["timestamp"].isoformat(),
+            "status": "sent"
+        }
+        await manager.broadcast(chat_id, broadcast_payload)
+
         return chat
 
     @staticmethod
@@ -76,4 +89,27 @@ class ChatService:
         chat.updated_at = datetime.utcnow()
         await chat.save()
         logger.info(f"Chat {chat_id} status updated to {status}")
+        return chat
+
+    @staticmethod
+    async def clear_messages(chat_id: str, user_id: PydanticObjectId) -> Chat:
+        chat = await Chat.get(chat_id)
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+
+        # Get the raw IDs from Link objects
+        emp_id = str(chat.employee_id.ref.id) if hasattr(chat.employee_id, 'ref') else str(chat.employee_id.id) if hasattr(chat.employee_id, 'id') else str(chat.employee_id)
+        mgr_id = str(chat.manager_id.ref.id) if hasattr(chat.manager_id, 'ref') else str(chat.manager_id.id) if hasattr(chat.manager_id, 'id') else str(chat.manager_id)
+
+        if str(user_id) not in [emp_id, mgr_id]:
+            raise HTTPException(status_code=403, detail="Not authorized to clear this chat")
+
+        chat.messages = []
+        chat.updated_at = datetime.utcnow()
+        await chat.save()
+        
+        # Broadcast the clear event to notify connected users
+        from app.services.websocket_manager import manager
+        await manager.broadcast(chat_id, {"type": "clear_chat"})
+        
         return chat

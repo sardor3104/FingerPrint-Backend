@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from app.schemas.employee import EmployeeOut, EmployeeUpdate
+from app.schemas.organization import OrganizationLocationOut, OrganizationLocationUpdate
 from app.services.admin_service import AdminService
 from app.core.deps import RoleChecker
 
@@ -30,3 +31,11 @@ async def failed_attempts():
 @router.get("/analytics/monthly")
 async def monthly_summary():
     return await AdminService.get_monthly_summary()
+
+@router.get("/organization-location", response_model=OrganizationLocationOut)
+async def get_org_location():
+    return await AdminService.get_organization_location()
+
+@router.post("/organization-location", response_model=OrganizationLocationOut)
+async def update_org_location(data: OrganizationLocationUpdate):
+    return await AdminService.update_organization_location(data)

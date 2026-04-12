@@ -3,13 +3,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from loguru import logger
 from app.core.config import settings
-
+from urllib.parse import urlencode
 FRONTEND_URL = "http://localhost:3000"
 
 async def send_reset_password_email(email_to: str, token: str):
     logger.info(f"Sending reset password email to {email_to}")
 
-    reset_link = f"{FRONTEND_URL}/reset-password?token={token}"
+    reset_link = f"{FRONTEND_URL}/reset-password?{urlencode({'token': token})}"
 
     html_body = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -46,27 +46,39 @@ async def send_reset_password_email(email_to: str, token: str):
     msg.attach(MIMEText(html_body, "html"))
 
     try:
-        if settings.SMTP_HOST:
-            # Clean App Password: remove all spaces (Google App Passwords are 16 chars without spaces)
-            smtp_password = settings.SMTP_PASSWORD.replace(" ", "") if settings.SMTP_PASSWORD else ""
+        smtp_host = settings.SMTP_HOST
+        smtp_port = settings.SMTP_PORT or 587
+        smtp_user = settings.SMTP_USER
+        smtp_password = (settings.SMTP_PASSWORD or "").replace(" ", "")
 
-            is_starttls = settings.SMTP_PORT == 587
-            is_tls = settings.SMTP_PORT == 465
+        logger.info(f"📧 SMTP Config: host={smtp_host}, port={smtp_port}, user={smtp_user}")
 
-            await aiosmtplib.send(
-                msg,
-                hostname=settings.SMTP_HOST,
-                port=settings.SMTP_PORT,
-                use_tls=is_tls,
-                start_tls=is_starttls,
-                username=settings.SMTP_USER,
-                password=smtp_password,
-            )
-            logger.info(f"✅ Password reset email sent successfully to {email_to}")
-        else:
-            logger.warning("SMTP not configured. Email NOT sent.")
+        if not smtp_host or not smtp_user or not smtp_password:
+            logger.warning("⚠️ SMTP not fully configured. Email NOT sent.")
             logger.info(f"[DEV] Reset link for {email_to}: {reset_link}")
+            return
+
+        # aiosmtplib: use_tls and start_tls are MUTUALLY EXCLUSIVE
+        # Port 465 = SSL/TLS (use_tls=True, start_tls=False)
+        # Port 587 = STARTTLS (use_tls=False, start_tls=True)
+        use_tls = (smtp_port == 465)
+        start_tls = (smtp_port in (587, 25))
+
+        logger.info(f"📧 Connecting: use_tls={use_tls}, start_tls={start_tls}")
+
+        await aiosmtplib.send(
+            msg,
+            hostname=smtp_host,
+            port=smtp_port,
+            username=smtp_user,
+            password=smtp_password,
+            use_tls=use_tls,
+            start_tls=start_tls,
+        )
+        logger.info(f"✅ Password reset email sent successfully to {email_to}")
     except Exception as e:
-        logger.error(f"❌ Failed to send email to {email_to}: {e}")
-        # Re-raise so the caller knows, but don't expose details to client
-        raise
+        logger.error(f"❌ Failed to send email to {email_to}: {type(e).__name__}: {e}")
+        logger.info(f"[FALLBACK] Reset link for {email_to}: {reset_link}")
+        # Don't re-raise: return gracefully so the user gets the generic response
+        # and the reset link is logged for debugging
+

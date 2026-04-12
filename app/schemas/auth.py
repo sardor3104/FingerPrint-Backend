@@ -1,6 +1,5 @@
 from typing import Optional, Literal
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
 
 class Token(BaseModel):
     access_token: str
