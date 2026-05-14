@@ -14,10 +14,11 @@ class MessageOut(MessageBase):
     status: Literal["sent", "read"]
 
 class ChatBase(BaseModel):
-    topic: str
+    topic: str = "Umumiy suhbat"
 
 class ChatCreate(ChatBase):
     manager_id: str
+    topic: str = "Umumiy suhbat"
 
 class ChatUpdate(BaseModel):
     status: Optional[Literal["open", "approved", "rejected"]] = None
