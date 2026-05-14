@@ -7,7 +7,7 @@ from app.core.deps import RoleChecker
 
 router = APIRouter()
 
-@router.get("/employees", response_model=List[EmployeeOut], dependencies=[Depends(RoleChecker(["admin"]))])
+@router.get("/employees", response_model=List[EmployeeOut], dependencies=[Depends(RoleChecker(["admin", "manager"]))])
 async def list_employees():
     return await AdminService.get_all_employees()
 
