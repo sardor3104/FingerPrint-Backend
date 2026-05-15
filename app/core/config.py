@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "Secure Fingerprint Attendance"
     API_V1_STR: str = "/api/v1"
+    FRONTEND_URL: str = "http://localhost:3000"
     
     # Security
     SECRET_KEY: str

@@ -4,12 +4,12 @@ from email.mime.text import MIMEText
 from loguru import logger
 from app.core.config import settings
 from urllib.parse import urlencode
-FRONTEND_URL = "http://localhost:3000"
+
 
 async def send_reset_password_email(email_to: str, token: str):
     logger.info(f"Sending reset password email to {email_to}")
 
-    reset_link = f"{FRONTEND_URL}/reset-password?{urlencode({'token': token})}"
+    reset_link = f"{settings.FRONTEND_URL}/reset-password?{urlencode({'token': token})}"
 
     html_body = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
