@@ -14,26 +14,26 @@ async def send_reset_password_email(email_to: str, token: str):
     html_body = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #1e40af, #06b6d4); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">🔐 Password Reset</h1>
-            <p style="color: rgba(255,255,255,0.8); margin-top: 8px;">Secure Fingerprint Attendance System</p>
+            <h1 style="color: white; margin: 0; font-size: 24px;">🔐 Parolni tiklash</h1>
+            <p style="color: rgba(255,255,255,0.8); margin-top: 8px;">Xavfsiz barmoq izi davomati tizimi</p>
         </div>
         <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb;">
-            <p style="color: #374151; font-size: 16px;">We received a request to reset your password.</p>
-            <p style="color: #374151;">Click the button below to reset your password. This link will expire in <strong>30 minutes</strong>.</p>
+            <p style="color: #374151; font-size: 16px;">Biz sizning parolingizni tiklash bo'yicha so'rov oldik.</p>
+            <p style="color: #374151;">Parolingizni tiklash uchun quyidagi tugmani bosing. Ushbu havola <strong>30 daqiqadan</strong> so'ng amal qilish muddati tugaydi.</p>
             <div style="text-align: center; margin: 30px 0;">
                 <a href="{reset_link}"
                    style="background: #1e40af; color: white; padding: 14px 32px; border-radius: 8px;
                           text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">
-                    Reset My Password
+                    Parolimni tiklash
                 </a>
             </div>
             <p style="color: #6b7280; font-size: 12px;">
-                If you did not request a password reset, please ignore this email.<br>
-                This link will expire in 30 minutes for your security.
+                Agar siz parolni tiklashni so'ramagan bo'lsangiz, iltimos, ushbu xatga e'tibor bermang.<br>
+                Xavfsizlik nuqtai nazaridan ushbu havola 30 daqiqadan so'ng amal qilish muddati tugaydi.
             </p>
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
             <p style="color: #9ca3af; font-size: 11px; text-align: center;">
-                Secure Fingerprint Attendance &amp; Access Control System
+                Xavfsiz barmoq izi davomati va kirishni nazorat qilish tizimi
             </p>
         </div>
     </div>
@@ -42,7 +42,7 @@ async def send_reset_password_email(email_to: str, token: str):
     msg = MIMEMultipart("alternative")
     msg["From"] = f"{settings.EMAILS_FROM_NAME} <{settings.EMAILS_FROM_EMAIL}>"
     msg["To"] = email_to
-    msg["Subject"] = "🔐 Password Reset Request - Fingerprint Attendance System"
+    msg["Subject"] = "🔐 Parolni tiklash so'rovi - Barmoq izi davomati tizimi"
     msg.attach(MIMEText(html_body, "html"))
 
     try:

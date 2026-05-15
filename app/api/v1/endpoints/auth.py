@@ -25,7 +25,7 @@ async def forgot_password(data: ForgotPasswordRequest):
         # Use 30-minute expiry for password reset tokens
         token = create_access_token(user.id, user.role, expires_delta=timedelta(minutes=30))
         await send_reset_password_email(user.email, token)
-    return {"message": "If the email exists, a reset link has been sent."}
+    return {"message": "Agar elektron pochta mavjud bo'lsa, tiklash havolasi yuborildi."}
 
 @router.post("/reset-password")
 async def reset_password(data: ResetPasswordRequest):
